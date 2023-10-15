@@ -1,4 +1,4 @@
-﻿# Título del Proyecto
+﻿# Dialogo Modal para Blazor 8.0
 
 Componente Blazor para mostrar un dialogo modal, similar a (SweetAlert)
 
