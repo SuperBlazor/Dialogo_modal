@@ -3,7 +3,7 @@
 Componente Blazor para mostrar un dialogo modal, similar a (SweetAlert)
 
 ![alt text](https://raw.githubusercontent.com/SuperBlazor/Dialogo_modal/master/Dialogo_modal/wwwroot/images/DialogoModal.jpg)
-
+<span>![</span><span>Ejemplo imagen dialogo modal</span><span>]</span><span>(</span><span>https://raw.githubusercontent.com/SuperBlazor/Dialogo_modal/master/Dialogo_modal/wwwroot/images/DialogoModal.jpg</span><span>)</span>
 ## Comenzando 🚀
 
 Abre este proyecto con Visual Studio 2022 o utiliza tu IDE preferido.
