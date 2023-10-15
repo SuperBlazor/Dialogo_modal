@@ -1,0 +1,46 @@
+﻿@page "/Example"
+
+@attribute [RenderModeServer]
+
+@using Dialogo_modal.Client.Pages
+
+<DialogoModal @ref="Dialogo">
+
+</DialogoModal>
+
+<h3>Modal dialog example</h3>
+
+<div>
+    Name:  <InputText @bind-Value="name"></InputText>
+</div>
+<br />
+<div style="mt-2">
+    <button type="button" @onclick="Click_delete" >Delete</button>
+</div>
+
+@code {
+
+    public  DialogoModal Dialogo { get; set; }
+
+    private string name { get; set; } = "scarlett johansson";
+
+    private async Task Click_delete()
+    {
+        var result = await Dialogo.Open(
+
+            new DialogoModal.DialogoModal_Opciones()
+            {
+                icono = DialogoModal.iconoTipo.Warning,
+                titulo = "Attention",
+                contenido_html = "Do you really want to delete the name?.",
+                mostrarBotonConfirmar = true,
+                mostrarBotonCancelar = true
+            }
+         );
+
+        if (result == DialogoModal.respuestaTipo.esAceptado)
+        {
+            name = "";            
+        }
+    }
+}

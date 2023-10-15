@@ -1,0 +1,147 @@
+﻿@attribute [RenderModeServer]
+
+@* Heredo de la clase Diposable para poder implementar el metodo dispose  *@
+@implements IDisposable
+
+<div class="modal @modalClass" tabindex="-1" role="dialog" style="display:@modalDisplay; overflow-y: auto;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">    
+
+                @switch (dm_opciones.icono)
+                {       
+                    case iconoTipo.Success:                        
+                        <i class="bi text-success h4 bi-check-square"></i>
+                        break;
+                    case iconoTipo.Warning:
+                        <i class="bi text-warning h4 bi-exclamation-diamond"></i>
+                        break;
+                    case iconoTipo.Error:
+                        <i class="bi text-danger h4 bi-x-circle"></i>
+                        break;
+                    case iconoTipo.Info:
+                        <i class="bi text-info h4 bi-info-square"></i>
+                        break;
+                    case iconoTipo.Question:
+                        <i class="bi text-info h4 bi-question-square-fill"></i>
+                        break;
+                    default:
+                    
+                        break;
+                }
+                &nbsp;<h5 class="modal-title">@dm_opciones.titulo.ToUpper()</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="Cancelar">
+                </button>
+            </div>
+            <div class="modal-body">                
+                <div class="row">
+                    <p>
+                        @dm_opciones.contenido_html
+                    </p>
+                <p>
+                        @if (dm_opciones.mostrarBotonConfirmar)
+                        {
+                            <button type="button" class="btn mx-1 btn-primary" @onclick="() => Aceptar()">Aceptar</button>
+                        }
+                        @if(dm_opciones.mostrarBotonCancelar)
+                        {
+                            <button class="btn mx-1 btn-secondary" @onclick="() => Cancelar()">Cancelar</button>
+                        }
+                </p>
+                </div>             
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (showBackdrop)
+{
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    /*Declaro un tipo de dato*/
+    public enum respuestaTipo {noRespondido, esAceptado, esCancelado, esDenegado, esRechazado, esCerrado }
+    public enum iconoTipo { Warning, Error, Info, Question, Success }
+    private respuestaTipo respuesta = respuestaTipo.noRespondido;
+
+    /*Declaro la tarea*/
+    Task<respuestaTipo> Tarea_RespuestaUsuario;
+    CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+    public class DialogoModal_Opciones
+    {
+        public iconoTipo icono { get; set; } = iconoTipo.Success;
+        public string? titulo { get; set; } = "";
+        public string? contenido_html { get; set; } = "";
+        public bool mostrarBotonConfirmar { get; set; } = false;
+        public bool mostrarBotonCancelar { get; set; } = false;
+    }
+
+    private DialogoModal_Opciones dm_opciones = new DialogoModal_Opciones();
+
+    //declaro un delegado a un metodo y espero a que se produzca el evento
+
+    private string modalDisplay = "none;";
+    private string modalClass = string.Empty;
+    private bool showBackdrop = false;
+
+    public async Task<respuestaTipo> Open(DialogoModal_Opciones _dm_opciones)
+    {
+        modalDisplay = "block";
+        modalClass = "show";
+        showBackdrop = true;
+
+        dm_opciones = _dm_opciones;
+
+        respuesta = respuestaTipo.noRespondido;
+
+
+        await InvokeAsync(() => { StateHasChanged(); });
+
+
+        StateHasChanged();
+
+        var resultado = await Task.Run(
+            async () => {
+                return await RespuestaUsuario();
+            }, cancellationTokenSource.Token
+        );
+
+        return resultado;
+    }
+
+
+    private async Task<respuestaTipo> RespuestaUsuario()
+    {
+        //Compruebo que el usuario responda
+        do
+        {            
+            await Task.Delay(100);
+        } while (respuesta == respuestaTipo.noRespondido);
+
+        return respuesta;
+    }
+
+    public void Cancelar()
+    {
+        modalDisplay = "none";
+        modalClass = string.Empty;
+        showBackdrop = false;
+        respuesta = respuestaTipo.esCancelado;
+    }
+
+    private void Aceptar()
+    {
+        modalDisplay = "none";
+        modalClass = string.Empty;
+        showBackdrop = false;
+        respuesta = respuestaTipo.esAceptado;
+    }
+
+    /*Elimino de memoria el objeto Modulo_JS_DatosServicio cuando esta pagina sea destruida*/
+    public void Dispose()
+    {
+        cancellationTokenSource.Cancel();
+    }
+}
